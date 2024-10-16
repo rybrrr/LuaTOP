@@ -6,4 +6,13 @@ class Program
     {
         Console.WriteLine("Hello, World!");
     }
+
+    class Node
+    {
+        public Node(int value)
+        {
+            Value = value;
+        }
+        public int Value { get; };
+        public Node Next { get; set };
 }
