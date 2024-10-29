@@ -53,7 +53,7 @@ class Program
             Node currentNode = Head;
             while (currentNode != null)
             {
-                if (currentNode.Value < minimum | minimum == null)
+                if (minimum == null currentNode.Value < minimum)
                 {
                     minimum = currentNode.Value;
                 }
