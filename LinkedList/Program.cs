@@ -43,7 +43,7 @@
                 Value = value;
             }
 
-            public int Value { get; }
+            public int Value { get; set; }
 
             public Node? Prev { get; set; }
             public Node? Next { get; set; }
@@ -87,7 +87,7 @@
                 return false;
             }
 
-            public int? FindMinimum() // O(n)
+            public int? FindMinimum()   // O(n)
             {
                 if (Head == null)
                 {
@@ -109,7 +109,7 @@
                 return minimum;
             }
 
-            public void PrintLinkedList() // O(n)
+            public void PrintLinkedList()   // O(n)
             {
                 Node? node = Head;
 
@@ -120,7 +120,7 @@
                 }
             }
 
-            public void Remove(Node node)
+            public void Remove(Node node)   // O(1)
             {
                 if (node != Head)
                     node.Prev.Next = node.Next;
@@ -133,7 +133,7 @@
                     Tail = node.Prev;
             }
 
-            public void Insert(Node node, Node prevNode)
+            public void Insert(Node node, Node prevNode)    // O(1)
             {
                 node.Prev = prevNode;
                 node.Next = prevNode.Next;
@@ -146,7 +146,7 @@
                 prevNode.Next = node;
             }
 
-            public void SortLinkedList() // O(n^2)
+            public void SortLinkedList()    // O(n^2)
             {
                 if (Head == null || Head.Next == null)
                 {
@@ -178,7 +178,7 @@
                 }
             }
 
-            public void DestructivePenetration(LinkedList list2)
+            public void DestructivePenetration(LinkedList list2)    // O(k*n)
             {
                 Node? node = Head;
                 while (node != null)
@@ -201,6 +201,40 @@
                     }
 
                     node = node.Next;
+                }
+            }
+
+            public void LongNumberSummation(LinkedList list2)   // O(n)
+            {
+                Node? node = Tail;
+                Node? node2 = list2.Tail;
+
+                int sum;
+                while (node2 != null)
+                {
+                    if (node == null)
+                    {
+                        Add(node2.Value);
+                        continue;
+                    }
+
+                    sum = node.Value + node2.Value;
+                    node.Value = sum % 10;
+
+                    if (sum >= 10)
+                    {
+                        decimal tens = sum / 10;
+                        int valueToAdd = (int) Math.Floor(tens);
+                        if (node.Prev == null)
+                        {
+                            Add(0);
+                        }
+
+                        node.Prev.Value += valueToAdd;
+                    }
+                    
+                    node = node.Prev;
+                    node2 = node2.Prev;
                 }
             }
         }
