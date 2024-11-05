@@ -5,34 +5,28 @@
         static void Main(string[] args)
         {
             LinkedList list1 = new LinkedList();
-            list1.Add(6);
             list1.Add(2);
-            list1.Add(8);
+            list1.Add(3);
+            list1.Add(2);
+            list1.Add(0);
+            list1.Add(1);
             list1.Add(4);
-            list1.Add(10);
 
-            list1.PrintLinkedList();
-            list1.SortLinkedList();
-            Console.WriteLine();
             list1.PrintLinkedList();
             Console.WriteLine();
 
             LinkedList list2 = new LinkedList();
-            list2.Add(3);
-            list2.Add(5);
+            list2.Add(8);
+            list2.Add(1);
             list2.Add(2);
-            list2.Add(4);
-            list2.Add(2);
-            list2.Add(5);
+            list2.Add(0);
 
             list2.PrintLinkedList();
             Console.WriteLine();
 
-            list1.DestructivePenetration(list2);
+            list1.DestructiveAddition(list2);
+
             list1.PrintLinkedList();
-            Console.WriteLine();
-
-            list2.PrintLinkedList();
             Console.WriteLine();
         }
 
@@ -57,20 +51,23 @@
             public void Add(int value)  // O(1)
             {
                 Node newNode = new Node(value);
+                AddNode(newNode);
+            }
 
+            public void AddNode(Node node)
+            {
                 if (Head == null)
                 {
-                    Tail = newNode;
+                    Tail = node;
                 }
                 else
                 {
-                    Head.Prev = newNode;
-                    newNode.Next = Head;
+                    Head.Prev = node;
+                    node.Next = Head;
                 }
 
-                Head = newNode;
+                Head = node;
             }
-
 
             public bool Find(int value) // O(n)
             {
@@ -133,7 +130,7 @@
                     Tail = node.Prev;
             }
 
-            public void Insert(Node node, Node prevNode)    // O(1)
+            public void InsertAfter(Node node, Node prevNode)    // O(1)
             {
                 node.Prev = prevNode;
                 node.Next = prevNode.Next;
@@ -144,6 +141,19 @@
                     Tail = node;
 
                 prevNode.Next = node;
+            }
+
+            public void InsertBefore(Node node, Node nextNode)  // O(1)
+            {
+                node.Next = nextNode;
+                node.Prev = nextNode.Prev;
+
+                if (nextNode != Head)
+                    nextNode.Prev.Next = node;
+                else
+                    Head = node;
+
+                nextNode.Prev = node;
             }
 
             public void SortLinkedList()    // O(n^2)
@@ -163,7 +173,7 @@
                         if (node.Value > node.Next.Value)
                         {
                             Remove(node);
-                            Insert(node, node.Next);
+                            InsertAfter(node, node.Next);
                             sorted = false;
                         } else
                         {
@@ -178,22 +188,44 @@
                 }
             }
 
+            public bool RemoveAll(int value)    // O(n)
+            {
+                // Returns whether there was node of given value
+
+                bool found = false;
+                Node? node = Head;
+
+                while (node != null)
+                {
+                    if (node.Value == value)
+                    {
+                        found = true;
+                        Remove(node);
+                    }
+                    node = node.Next;
+                }
+
+                return found;
+            }
+
+            public void RemoveDuplicates()  // O(n^2)
+            {
+                Node? node = Head;
+                while (node != null)
+                {
+                    Node? nextNode = node.Next;
+                    RemoveAll(node.Value);
+                    AddNode(node);
+                    node = nextNode;
+                }
+            }
+
             public void DestructivePenetration(LinkedList list2)    // O(k*n)
             {
                 Node? node = Head;
                 while (node != null)
                 {
-                    bool found = false;
-                    Node? node2 = list2.Head;
-                    while (node2 != null)
-                    {
-                        if (node.Value == node2.Value)
-                        {
-                            found = true;
-                            list2.Remove(node2);
-                        }
-                        node2 = node2.Next;
-                    }
+                    bool found = list2.RemoveAll(node.Value);
 
                     if (found == false)
                     {
@@ -204,37 +236,42 @@
                 }
             }
 
-            public void LongNumberSummation(LinkedList list2)   // O(n)
+            public void DestructiveAddition(LinkedList list2)   // O(n^2 + k^2) <= O(k + (n+k)^2)
             {
-                Node? node = Tail;
+                // I am to tired to write optimized code idc anymore
+                Node? list2Head = list2.Head;
+                while (list2Head != null)
+                {
+                    list2.Remove(list2Head);
+                    AddNode(list2Head);
+                    list2Head = list2.Head;
+                }
+
+                RemoveDuplicates();
+            }
+
+            public void AddLongNumber(LinkedList list2)   // O(n)
+            {
+                Node? node1 = Tail;
                 Node? node2 = list2.Tail;
 
-                int sum;
+                int overflow = 0;
                 while (node2 != null)
                 {
-                    if (node == null)
-                    {
-                        Add(node2.Value);
-                        continue;
-                    }
-
-                    sum = node.Value + node2.Value;
-                    node.Value = sum % 10;
-
-                    if (sum >= 10)
-                    {
-                        decimal tens = sum / 10;
-                        int valueToAdd = (int) Math.Floor(tens);
-                        if (node.Prev == null)
-                        {
-                            Add(0);
-                        }
-
-                        node.Prev.Value += valueToAdd;
-                    }
+                    if (node1 == null)
+                        Add(0);
                     
-                    node = node.Prev;
+                    int sum = node1.Value + node2.Value + overflow;
+                    node1.Value = sum % 10;
+                    overflow = (sum - node1.Value) / 10;
+
+                    node1 = node1.Prev;
                     node2 = node2.Prev;
+                }
+
+                if (overflow != 0)
+                {
+                    Add(overflow);
                 }
             }
         }
