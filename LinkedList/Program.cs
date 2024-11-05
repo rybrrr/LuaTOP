@@ -1,80 +1,208 @@
-﻿namespace LinkedList;
-
-class Program
+﻿namespace Spojovy_seznam
 {
-    static void Main(string[] args)
+    internal class Program
     {
-        Node uzlik = new Node(8);
-        
-    }
-
-    class Node
-    {
-        public Node(int value)
+        static void Main(string[] args)
         {
-            Value = value;
+            LinkedList list1 = new LinkedList();
+            list1.Add(6);
+            list1.Add(2);
+            list1.Add(8);
+            list1.Add(4);
+            list1.Add(10);
+
+            list1.PrintLinkedList();
+            list1.SortLinkedList();
+            Console.WriteLine();
+            list1.PrintLinkedList();
+            Console.WriteLine();
+
+            LinkedList list2 = new LinkedList();
+            list2.Add(3);
+            list2.Add(5);
+            list2.Add(2);
+            list2.Add(4);
+            list2.Add(2);
+            list2.Add(5);
+
+            list2.PrintLinkedList();
+            Console.WriteLine();
+
+            list1.DestructivePenetration(list2);
+            list1.PrintLinkedList();
+            Console.WriteLine();
+
+            list2.PrintLinkedList();
+            Console.WriteLine();
         }
-        public int Value { get; }
-        public Node Next { get; set; }
-    }
 
-    class LinkedList
-    {
-        public Node Head { get; set; }
-        public void Add(int value)
+        class Node
         {
-            Node newHead = new Node(value);
-            if (Head != null)
+            public Node(int value)
             {
-                newHead.Next = Head;
+                Value = value;
             }
-            Head = newHead;
+
+            public int Value { get; }
+
+            public Node? Prev { get; set; }
+            public Node? Next { get; set; }
         }
 
-        public bool Find(int value)
+        class LinkedList
         {
-            Node currentNode = Head;
-            while (currentNode != null)
+            public Node? Head { get; set; }
+            public Node? Tail { get; set; }
+
+            public void Add(int value)  // O(1)
             {
-                if (currentNode.Value == value)
+                Node newNode = new Node(value);
+
+                if (Head == null)
                 {
-                    return true;
+                    Tail = newNode;
                 }
-                currentNode = currentNode.Next;
-            }
-            return false;
-        }
-
-        public int FindMinimum()
-        {
-            // O(n)
-
-            int minimum;
-            Node currentNode = Head;
-            while (currentNode != null)
-            {
-                if (minimum == null || currentNode.Value < minimum)
+                else
                 {
-                    minimum = currentNode.Value;
+                    Head.Prev = newNode;
+                    newNode.Next = Head;
                 }
-                currentNode = currentNode.Next;
+
+                Head = newNode;
             }
-            return minimum;
-        }
 
-        public void Sort()
-        {
 
+            public bool Find(int value) // O(n)
+            {
+                Node? node = Head;
+
+                while (node != null)
+                {
+                    if (node.Value == value)
+                    {
+                        return true;
+                    }
+                    node = node.Next;
+                }
+                return false;
+            }
+
+            public int? FindMinimum() // O(n)
+            {
+                if (Head == null)
+                {
+                    return null;
+                }
+
+                Node? node = Head;
+                int minimum = Head.Value;
+
+                while (node != null)
+                {
+                    if (minimum > node.Value)
+                    {
+                        minimum = node.Value;
+                    }
+                    node = node.Next;
+                }
+
+                return minimum;
+            }
+
+            public void PrintLinkedList() // O(n)
+            {
+                Node? node = Head;
+
+                while (node != null)
+                {
+                    Console.WriteLine(node.Value);
+                    node = node.Next;
+                }
+            }
+
+            public void Remove(Node node)
+            {
+                if (node != Head)
+                    node.Prev.Next = node.Next;
+                else
+                    Head = node.Next;
+
+                if (node != Tail)
+                    node.Next.Prev = node.Prev;
+                else
+                    Tail = node.Prev;
+            }
+
+            public void Insert(Node node, Node prevNode)
+            {
+                node.Prev = prevNode;
+                node.Next = prevNode.Next;
+
+                if (prevNode != Tail)
+                    prevNode.Next.Prev = node;
+                else
+                    Tail = node;
+
+                prevNode.Next = node;
+            }
+
+            public void SortLinkedList() // O(n^2)
+            {
+                if (Head == null || Head.Next == null)
+                {
+                    return;
+                }
+
+                while (true)
+                {
+                    bool sorted = true;
+                    Node node = Head;
+
+                    while (node.Next != null) // dokud nedojedeme na konec seznamu
+                    {
+                        if (node.Value > node.Next.Value)
+                        {
+                            Remove(node);
+                            Insert(node, node.Next);
+                            sorted = false;
+                        } else
+                        {
+                            node = node.Next;
+                        }
+                    }
+
+                    if (sorted == true)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            public void DestructivePenetration(LinkedList list2)
+            {
+                Node? node = Head;
+                while (node != null)
+                {
+                    bool found = false;
+                    Node? node2 = list2.Head;
+                    while (node2 != null)
+                    {
+                        if (node.Value == node2.Value)
+                        {
+                            found = true;
+                            list2.Remove(node2);
+                        }
+                        node2 = node2.Next;
+                    }
+
+                    if (found == false)
+                    {
+                        Remove(node);
+                    }
+
+                    node = node.Next;
+                }
+            }
         }
     }
-
-    /*
-    1. Nalezení minima ve spojovém seznamu (30b)
-    2. Seřazení hodnot ve spojovém seznamu vzestupně (50b)
-    3. Destruktivní průnik dvou seznamů (70b)Destruktivní průnik znamená, že z prvků obou seznamů vytvoříte jeden seznam obsahující právě všechny společné prvky a to každý pouze jednou. Funkce nevytváří žádné nové prvky, ale používá pouze ty již existující.
-
-    Upozornění: V jednom seznamu se hodnoty mohou opakovat. Seznamy mohou být i prázdné.
-
-    BONUS (+10b): Určete časovou složitost všech vašich implementací (n je počet prvků v poli).
-    */
 }
